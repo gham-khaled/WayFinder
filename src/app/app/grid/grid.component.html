@@ -1,0 +1,35 @@
+<div class="settings">
+  <label for="rows">Rows:</label>
+  <input type="number" id="rows" [(ngModel)]="numRows" (change)="initGrid()" min="1" />
+  <label for="cols">Columns:</label>
+  <input type="number" id="cols" [(ngModel)]="numCols" (change)="initGrid()" min="1" />
+  <select id="algorithm" [(ngModel)]="selectedAlgorithm">
+    <option value="dijkstra">Dijkstra</option>
+    <option value="a-star">A*</option>
+<!--    <option value="bfs">BFS</option>-->
+<!--    <option value="dfs">DFS</option>-->
+    <option value="greedy">Greedy Best-First Search</option>
+  </select>
+</div>
+<div class="grid">
+  <ng-container *ngFor="let cell of grid; let rowIndex = index">
+    <app-cell
+      [cellData]="cell"
+      (click)="onCellClick(cell)"
+    ></app-cell>
+    <br *ngIf=" (rowIndex + 1) % numColsBR  === 0" />
+  </ng-container>
+</div>
+
+<div class="btn-container">
+  <button (click)="toggleMode('start')">Start</button>
+  <button (click)="toggleMode('end')">End</button>
+  <button (click)="toggleMode('obstacle')">Obstacle</button>
+</div>
+<div class="btn-container">
+
+<button (click)="visualize()">Visualize</button>
+<button (click)="initGrid()">Refresh Grid</button>
+<button (click)="initGrid(true)">Random</button>
+</div>
+

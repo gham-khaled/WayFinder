@@ -61,7 +61,6 @@ export class PathfindingService {
       for (let col = 0; col < numCols; col++) {
         grid[row][col] = arr[row * numRows + col];
       }
-      console.log(grid[row])
     }
 
     return grid;

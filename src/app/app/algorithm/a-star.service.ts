@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Algorithm } from './algorithm.service';
+import {Injectable} from '@angular/core';
+import {Algorithm} from './algorithm.service';
 import {PriorityQueue} from "./PriorityQueue";
 import {Cell} from "./Cell";
 
@@ -11,7 +11,7 @@ export class AStarService extends Algorithm {
     super();
   }
 
-  async findPath(grid: any[][], start: any, end:any): Promise<any[]> {
+  async findPath(grid: any[][], start: any, end: any): Promise<any[]> {
     const openSet: Cell[] = [];
     const closedSet: Cell[] = [];
     const cameFrom: Map<Cell, Cell | null> = new Map();
@@ -37,8 +37,11 @@ export class AStarService extends Algorithm {
           path.push(temp);
           temp = cameFrom.get(temp) || null;
         }
+        await this.setPath(path.reverse())
+
         return path.reverse();
       }
+      current.type = current.type === 'unvisited'? 'visited': current.type
 
       closedSet.push(current);
 
@@ -58,7 +61,7 @@ export class AStarService extends Algorithm {
           neighbor.g = tentativeG;
           neighbor.h = this.heuristic(neighbor, end);
           neighbor.f = neighbor.g + neighbor.h;
-          neighbor.type = 'visited';
+          // neighbor.type = 'visited';
           await this.delay();
         }
       }
@@ -66,6 +69,7 @@ export class AStarService extends Algorithm {
 
     return [];
   }
+
   heuristic(a: Cell, b: Cell): number {
     return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
   }

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { PathfindingService } from '../pathfinding.service';
+import {Component, OnInit} from '@angular/core';
+import {PathfindingService} from '../pathfinding.service';
 
 @Component({
   selector: 'app-grid',
@@ -8,11 +8,12 @@ import { PathfindingService } from '../pathfinding.service';
 })
 export class GridComponent implements OnInit {
   grid: any[] = [];
-  currentMode:  'start' | 'end' | 'obstacle' | null = null;
+  currentMode: 'start' | 'end' | 'obstacle' | null = null;
   startCell: any;
   endCell: any;
   numRows = 10;
   numCols = 10;
+  algorithms: string[] = ['dijkstra', 'greedy', 'a-star']
   numColsBR = this.numCols
   selectedAlgorithm = 'dijkstra';
 
@@ -23,9 +24,13 @@ export class GridComponent implements OnInit {
   ngOnInit(): void {
     this.initGrid();
   }
+
   refreshGrid() {
-    this.initGrid();
+    for (const cell of this.grid) {
+      cell.type = cell.type === 'visited' || cell.type === 'path' ? 'unvisited' : cell.type
+    }
   }
+
   initGrid(random = false): void {
     this.grid = [];
     this.numColsBR = this.numCols
@@ -41,9 +46,9 @@ export class GridComponent implements OnInit {
         this.grid.push(cell);
       }
     }
-    this.startCell =this.grid[0]
+    this.startCell = this.grid[0]
     this.startCell.type = 'start'
-    this.endCell =this.grid[this.grid.length - 1]
+    this.endCell = this.grid[this.grid.length - 1]
     this.endCell.type = 'end'
   }
 
@@ -62,7 +67,7 @@ export class GridComponent implements OnInit {
       this.endCell = cell;
     } else if (this.currentMode === 'obstacle') {
       cell.type = cell.type === 'unvisited' ? 'obstacle' : 'unvisited';
-      console.log(cell.type)
+      // console.log(cell.type)
     } else {
       const weight = prompt('Enter the weight of the cell (default is 1):', '1');
       cell.weight = weight ? parseInt(weight) : 1;
@@ -71,13 +76,26 @@ export class GridComponent implements OnInit {
 
   toggleMode(mode: 'start' | 'end' | 'obstacle'): void {
     this.currentMode = this.currentMode === mode ? null : mode;
-    console.log(this.currentMode)
+    // console.log(this.currentMode)
+  }
+
+  async compare(): Promise<void> {
+    for (const algorithm of this.algorithms) {
+      console.log(algorithm)
+      const path = await this.pathfindingService.findPath(this.grid, algorithm, this.numRows, this.numCols);
+      let sum = 0;
+      path.forEach((cell) => {
+        sum += cell.weight;
+      });
+      console.log(`For ${algorithm} we have a total of ${sum}`)
+      this.refreshGrid()
+    }
   }
 
   async visualize() {
-    console.log(this.selectedAlgorithm)
-    await  this.pathfindingService.findPath(this.grid, this.selectedAlgorithm, this.numRows, this.numCols);
+    await this.pathfindingService.findPath(this.grid, this.selectedAlgorithm, this.numRows, this.numCols);
   }
+
   randomIntFromInterval(min: number, max: number) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
   }

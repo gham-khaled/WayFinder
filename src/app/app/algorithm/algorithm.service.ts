@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {Cell} from "./Cell";
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,12 @@ export abstract class Algorithm {
 
   delay(ms: number=this.defaultSpeed): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  async setPath(finalPath: Cell[]){
+    for (const pathCell of finalPath) {
+      pathCell.type = pathCell.type === 'visited' ? 'path':  pathCell.type;
+      await this.delay()
+    }
   }
 
 }

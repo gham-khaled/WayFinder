@@ -12,9 +12,12 @@ export class GreedyBestFirstService extends Algorithm {
   }
 
   async findPath(grid: any[][], start: any, end:any): Promise<any[]> {
+    console.log('In Greedy')
     const openSet: Cell[] = [];
     const closedSet: Cell[] = [];
     const cameFrom: Map<Cell, Cell | null> = new Map();
+    openSet.push(start);
+
     while (openSet.length > 0) {
       let lowestIndex = 0;
       for (let i = 1; i < openSet.length; i++) {
@@ -24,6 +27,7 @@ export class GreedyBestFirstService extends Algorithm {
       }
 
       const current = openSet.splice(lowestIndex, 1)[0];
+      current.type = current.type === 'unvisited'? 'visited': current.type
 
       if (current.type === 'end') {
         const path: Cell[] = [];
@@ -32,6 +36,8 @@ export class GreedyBestFirstService extends Algorithm {
           path.push(temp);
           temp = cameFrom.get(temp) || null;
         }
+        await this.setPath(path)
+
         return path.reverse();
       }
 
@@ -45,7 +51,6 @@ export class GreedyBestFirstService extends Algorithm {
 
           if (!openSet.includes(neighbor)) {
             cameFrom.set(neighbor, current);
-            neighbor.type = 'visited';
             await this.delay();
             openSet.push(neighbor);
           }

@@ -30,10 +30,7 @@ export class DijkstraService extends Algorithm {
       const currentDistance = current.distance;
       if (currentCell === end) {
         const finalPath = [...currentPath, currentCell];
-        for (const pathCell of finalPath) {
-          pathCell.type = 'path';
-          await this.delay(100)
-        }
+        this.setPath(finalPath)
         return finalPath;
       }
       if (currentCell.type !== 'start') {

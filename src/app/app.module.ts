@@ -3,14 +3,16 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
-import { GridComponent } from './app/grid/grid.component';
-import { CellComponent } from './app/grid/cell/cell.component';
+import { GridComponent } from './grid/grid.component';
+import { CellComponent } from './grid/cell/cell.component';
+import { ChartComponent } from './grid/chart/chart.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     GridComponent,
-    CellComponent
+    CellComponent,
+    ChartComponent
   ],
   imports: [
     BrowserModule,

@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {PathfindingService} from '../pathfinding.service';
+import {ChartComponent} from "./chart/chart.component";
 
 @Component({
   selector: 'app-grid',
   templateUrl: './grid.component.html',
   styleUrls: ['./grid.component.css']
+
 })
 export class GridComponent implements OnInit {
   grid: any[] = [];
@@ -16,6 +18,11 @@ export class GridComponent implements OnInit {
   algorithms: string[] = ['dijkstra', 'greedy', 'a-star']
   numColsBR = this.numCols
   selectedAlgorithm = 'dijkstra';
+  comparable: boolean = false
+  algoTotalWeight: number[] = [];
+  algoCellsVisited: number[] = [];
+  @ViewChild(ChartComponent)
+  chart!: ChartComponent;
 
   constructor(private pathfindingService: PathfindingService) {
 
@@ -23,6 +30,7 @@ export class GridComponent implements OnInit {
 
   ngOnInit(): void {
     this.initGrid();
+
   }
 
   refreshGrid() {
@@ -40,7 +48,7 @@ export class GridComponent implements OnInit {
         const cell = {
           row: row,
           col: col,
-          type: 'unvisited',
+          type: random ? this.randomObstacle() : 'unvisited',
           weight: random ? this.randomIntFromInterval(1, 100) : 1,
         };
         this.grid.push(cell);
@@ -79,25 +87,69 @@ export class GridComponent implements OnInit {
     // console.log(this.currentMode)
   }
 
+  async triggerChart(): Promise<void> {
+    this.algoTotalWeight = []
+    this.algoCellsVisited = []
+    await this.compare()
+    const data = {// values on X-Axis
+      labels: this.algorithms,
+      datasets: [
+        {
+          label: "Cells Visited",
+          data: this.algoCellsVisited,
+          backgroundColor: 'blue'
+        },
+        {
+          label: "Total Weight",
+          data: this.algoTotalWeight,
+          backgroundColor: 'limegreen'
+        }
+      ]
+    }
+    this.chart?.createChart(data)
+  }
+
   async compare(): Promise<void> {
     for (const algorithm of this.algorithms) {
       console.log(algorithm)
       const path = await this.pathfindingService.findPath(this.grid, algorithm, this.numRows, this.numCols);
-      let sum = 0;
+      let totalWeight = 0;
+      let numOfCells = 0;
       path.forEach((cell) => {
-        sum += cell.weight;
+        totalWeight += cell.weight;
       });
-      console.log(`For ${algorithm} we have a total of ${sum}`)
+      for (const cell of this.grid) {
+        if (cell.type !== 'unvisited'){
+          numOfCells ++;
+        }
+      }
+      console.log(`For ${algorithm} we have a total of ${totalWeight} with ${numOfCells} cells visited`)
+      this.algoTotalWeight.push(totalWeight)
+      this.algoCellsVisited.push(numOfCells)
       this.refreshGrid()
     }
   }
 
   async visualize() {
-    await this.pathfindingService.findPath(this.grid, this.selectedAlgorithm, this.numRows, this.numCols);
+    this.refreshGrid()
+    const path = await this.pathfindingService.findPath(this.grid, this.selectedAlgorithm, this.numRows, this.numCols);
+    let totalWeight = 0;
+    let numOfCells = 0;
+    path.forEach((cell) => {
+      totalWeight += cell.weight;
+    });
+    for (const cell of this.grid) {
+      if (cell.type !== 'unvisited'){
+        numOfCells ++;
+      }
+    }
+    console.log(`For ${this.selectedAlgorithm} we have a total of ${totalWeight} with ${numOfCells} cells visited`)
   }
 
   randomIntFromInterval(min: number, max: number) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
-
+  randomObstacle(): 'unvisited' | 'obstacle' {
+    return  this.randomIntFromInterval(1, 9) > 1  ? 'unvisited' : 'obstacle'
+  }
 }

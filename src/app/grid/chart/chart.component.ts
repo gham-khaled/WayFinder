@@ -17,7 +17,7 @@ export class ChartComponent {
 
       data: data,
       options: {
-        aspectRatio:0.5
+        aspectRatio:1
       }
 
     });

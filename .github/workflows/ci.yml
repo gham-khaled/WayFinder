@@ -14,6 +14,15 @@ jobs:
     environment: V2
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set up node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.14'
+      - name: npm dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
       - uses: actions/setup-python@v2
         with:
           python-version: "3.7"
@@ -22,7 +31,5 @@ jobs:
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_DEFAULT_REGION }}
-          env: ${{ env.Env }}
-
-      - run: make s3
+      - name: Deploy Open API HTML Documentation
+        run: aws s3 sync dist/pathfinding-visualizer s3://wayfinder.com
